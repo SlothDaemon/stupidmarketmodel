@@ -63,7 +63,7 @@ to sell
 
       let volume (item 0 order)
       let bought-value (item 1 order)
-      set profit (volume * (value - bought-value))
+      set profit profit + (volume * (value - bought-value))
 
       ifelse volume > internal-sell-amount
       [set held replace-item 0 held (list (volume - internal-sell-amount) bought-value)
@@ -174,7 +174,7 @@ market-volatility
 market-volatility
 0
 1
-0.05
+0.25
 .05
 1
 NIL
@@ -234,7 +234,7 @@ buy-amount
 buy-amount
 0
 100
-33.0
+66.0
 1
 1
 NIL
@@ -256,7 +256,7 @@ sell-amount
 sell-amount
 0
 100
-33.0
+13.0
 1
 1
 NIL
