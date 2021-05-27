@@ -11,7 +11,7 @@ Every tick the value variable increases or decreases with a normally distributed
 
 ## HOW TO USE IT
 
-Buy low and sell high, and pray that the company doesn't go bankrupt.
+Buy low and sell high, and pray that the company doesn't go bankrupt. Oh, and download NetLogo at https://ccl.northwestern.edu/netlogo/download.shtml
 
 ## THINGS TO NOTICE
 
