@@ -1,5 +1,6 @@
 globals [
   value
+  sell-profit?
   profit?
   profit
   held
@@ -8,6 +9,8 @@ globals [
 
 to setup
   clear-all
+  set-default-shape turtles "face neutral"
+  create-turtles 1 [set color grey set size 2]
   set value 300
   set profit 0
   set held []
@@ -20,14 +23,7 @@ to go
   [ ; loss
     set profit? false
     ifelse value - toadd <= 0
-    [ ; bankrupt, you lose
-      set value 0
-      foreach held
-        [ [h] -> set profit (profit - (item 0 h * item 1 h)) ]
-      clear-output
-      output-type "Bankrupt!"
-      stop
-    ][set value value - toadd]
+    [bankrupt stop][set value value - toadd]
   ][ ; gain
     set profit? true
     set value value + toadd
@@ -41,19 +37,16 @@ to do-plots
   create-temporary-plot-pen "stonkplot"
   ifelse profit? [set-plot-pen-color green][set-plot-pen-color red]
   plot value
-
-  clear-output
-  let out word "Your portfolio: \n" held
-  output-type out
 end
 
 to buy
   set held lput (list buy-amount value) held
   set total-held total-held + buy-amount
+  update-portfolio
 end
 
 to sell
-  if sell-amount > total-held [set sell-amount total-held]
+  if sell-amount > total-held and total-held > 0 [set sell-amount total-held]
   let internal-sell-amount sell-amount
 
   if internal-sell-amount <= total-held [
@@ -63,7 +56,9 @@ to sell
 
       let volume (item 0 order)
       let bought-value (item 1 order)
-      set profit profit + (volume * (value - bought-value))
+      let profit-diff (volume * (value - bought-value))
+      ifelse profit-diff < 0 [set sell-profit? false][set sell-profit? true]
+      set profit profit + profit-diff
 
       ifelse volume > internal-sell-amount
       [set held replace-item 0 held (list (volume - internal-sell-amount) bought-value)
@@ -74,16 +69,49 @@ to sell
 
     set total-held (total-held - sell-amount)
   ]
+  plot-profit
+  update-portfolio
+  update-fren
+end
+
+to update-portfolio
+  clear-output
+  let out word "Your portfolio: \n" held
+  output-type out
+end
+
+to plot-profit
+  set-current-plot "profit"
+  create-temporary-plot-pen "profitplot"
+  ifelse sell-profit? [set-plot-pen-color green][set-plot-pen-color red]
+  plot profit
+end
+
+to update-fren
+  ask turtles [
+    ifelse sell-profit?
+    [set shape "face happy" set color green]
+    [set shape "face sad"   set color red]]
+end
+
+to bankrupt
+  set value 0
+  foreach held
+    [ [h] -> set profit (profit - (item 0 h * item 1 h)) ]
+  clear-output
+  output-type "Bankrupt!"
+  set sell-profit? false
+  update-fren
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
 146
 10
-187
-52
+185
+50
 -1
 -1
-1.0
+10.333333333333334
 1
 10
 1
@@ -93,10 +121,10 @@ GRAPHICS-WINDOW
 1
 1
 1
--16
-16
--16
-16
+-1
+1
+-1
+1
 0
 0
 1
@@ -174,7 +202,7 @@ market-volatility
 market-volatility
 0
 1
-0.25
+1.0
 .05
 1
 NIL
@@ -232,9 +260,9 @@ SLIDER
 96
 buy-amount
 buy-amount
-0
+1
 100
-66.0
+30.0
 1
 1
 NIL
@@ -254,9 +282,9 @@ SLIDER
 132
 sell-amount
 sell-amount
-0
+1
 100
-13.0
+10.0
 1
 1
 NIL
@@ -292,6 +320,23 @@ If the company's value hits 0, they're bankrupt and the model stops
 11
 0.0
 1
+
+PLOT
+419
+258
+663
+445
+profit
+NIL
+NIL
+0.0
+10.0
+0.0
+10.0
+true
+false
+"" ""
+PENS
 
 @#$#@#$#@
 ## WHAT IS IT?
